@@ -6,24 +6,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NoobChainApp {
+    public static final int numOfBlocks = 50;
     private final static List<Block> blockchain = new ArrayList<>(); // <--- This is our global list of blocks, like a global variable>
-    private final static int difficulty = 6;
+    private final static int difficulty = 5;
     private static int blockCounter = 0;
 
-    public static void addBlockToChain(Block newBlock) {
-        blockchain.add(newBlock); // <--- add the new block to our blockchain
-        System.out.println("Trying to Mine block: #" + blockCounter);
-        blockchain.get(blockCounter++).mineBlock(difficulty);
+    private static void addBlocksToChain(int numOfBlocks) {
+        // add genesis block
+        Block genesisBlock = new Block("I'm the genesis block", "0");
+        blockchain.add(genesisBlock);
+        blockCounter++;
+        // add other block
+        for (int i = 1; i < numOfBlocks; i++) {
+            final String data = "Yo! I'm a block #" + blockCounter;
+            final String previousHash = blockchain.get(blockchain.size() - 1).getHash();
+            final Block newBlock = new Block(data, previousHash);
+            blockchain.add(newBlock); // <--- add the new block to our blockchain
+            System.out.println("Trying to Mine block: #" + blockCounter);
+            blockchain.get(blockCounter++).mineBlock(difficulty);
+        }
     }
 
     public static void main(String[] args) {
         System.out.println("Difficulty is: " + difficulty);
         System.out.println("\n==================Mine the NoobChain==================");
         long startTime = System.currentTimeMillis();
-        addBlockToChain(new Block("Hi im the first block", "0"));
-        addBlockToChain(new Block("Yo im the second block", blockchain.get(blockchain.size() - 1).getHash()));
-        addBlockToChain(new Block("Sup im the third block", blockchain.get(blockchain.size() - 1).getHash()));
-        addBlockToChain(new Block("Hey im the fourth block", blockchain.get(blockchain.size() - 1).getHash()));
+        addBlocksToChain(numOfBlocks);
         long endTime = System.currentTimeMillis();
         System.out.println("Total mining execution time: " + ((endTime - startTime) / 1000) + " seconds");
         // validate blockchain
