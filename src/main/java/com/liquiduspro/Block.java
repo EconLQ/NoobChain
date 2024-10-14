@@ -13,6 +13,7 @@ public final class Block {
         this.data = data;
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
+        this.nonce = 0;
         this.hash = calculateHash();
     }
 
@@ -30,6 +31,11 @@ public final class Block {
 
     public String getData() {
         return data;
+    }
+
+    // validate the block's hash
+    public boolean isValid() {
+        return hash.equals(calculateHash());
     }
 
     public String calculateHash() {
