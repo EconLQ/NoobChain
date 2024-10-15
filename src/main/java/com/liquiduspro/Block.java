@@ -1,5 +1,7 @@
 package com.liquiduspro;
 
+import com.liquiduspro.util.StringUtil;
+
 import java.util.Date;
 
 public final class Block {
