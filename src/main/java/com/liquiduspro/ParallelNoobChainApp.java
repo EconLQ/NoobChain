@@ -28,7 +28,11 @@ public class ParallelNoobChainApp {
     private static final ReentrantLock blockchainLock = new ReentrantLock();
 
     public static void main(String[] args) {
-        compareParallelMining();
+        System.out.println("Available Processors: " + Constants.AVAILABLE_PROCESSORS);
+        System.out.println("Difficulty: " + Constants.DIFFICULTY);
+        System.out.println("Number of Blocks: " + Constants.NUM_OF_BLOCKS);
+        System.out.println("============================================");
+        runParallelMining();
         printNoobChain();
     }
 
@@ -141,18 +145,16 @@ public class ParallelNoobChainApp {
         }
     }
 
-    private static void compareParallelMining() {
-        System.out.println("Available Processors: " + Constants.AVAILABLE_PROCESSORS);
-        System.out.println("Difficulty: " + Constants.DIFFICULTY);
+    private static void runParallelMining() {
         System.out.println("===========================Parallel Mining===========================");
         long startTime = System.currentTimeMillis();
         parallelMining(Constants.AVAILABLE_PROCESSORS, Constants.NUM_OF_BLOCKS);
         long endTime = System.currentTimeMillis();
-        System.out.println("Total mining execution time: " + ((endTime - startTime) / 1000) + " seconds");
+        System.out.println("\nTotal mining execution time: " + ((endTime - startTime) / 1000) + " seconds");
         // validate blockchain
         System.out.println("\n==================Validate NoobChain==================");
         boolean isValid = validateChain();
-        System.out.println("Blockchain is Valid: " + isValid);
+        System.out.println("\nBlockchain is Valid: " + isValid);
 
     }
 }
