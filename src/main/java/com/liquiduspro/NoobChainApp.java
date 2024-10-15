@@ -1,14 +1,13 @@
 package com.liquiduspro;
 
 import com.google.gson.GsonBuilder;
+import com.liquiduspro.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NoobChainApp {
-    public static final int numOfBlocks = 50;
     private final static List<Block> blockchain = new ArrayList<>(); // <--- This is our global list of blocks, like a global variable>
-    private final static int difficulty = 5;
     private static int blockCounter = 0;
 
     private static void addBlocksToChain(int numOfBlocks) {
@@ -23,15 +22,15 @@ public class NoobChainApp {
             final Block newBlock = new Block(data, previousHash);
             blockchain.add(newBlock); // <--- add the new block to our blockchain
             System.out.println("Trying to Mine block: #" + blockCounter);
-            blockchain.get(blockCounter++).mineBlock(difficulty);
+            blockchain.get(blockCounter++).mineBlock(Constants.DIFFICULTY);
         }
     }
 
     public static void main(String[] args) {
-        System.out.println("Difficulty is: " + difficulty);
+        System.out.println("Difficulty is: " + Constants.DIFFICULTY);
         System.out.println("\n==================Mine the NoobChain==================");
         long startTime = System.currentTimeMillis();
-        addBlocksToChain(numOfBlocks);
+        addBlocksToChain(Constants.NUM_OF_BLOCKS);
         long endTime = System.currentTimeMillis();
         System.out.println("Total mining execution time: " + ((endTime - startTime) / 1000) + " seconds");
         // validate blockchain
@@ -46,7 +45,7 @@ public class NoobChainApp {
 
     private static Boolean isChainValid() {
         Block currentBlock, previousBlock;
-        String hashTarget = new String(new char[difficulty]).replace('\0', '0');
+        String hashTarget = new String(new char[Constants.DIFFICULTY]).replace('\0', '0');
 
         for (int i = 1; i < blockchain.size(); i++) {
             currentBlock = blockchain.get(i);
@@ -65,7 +64,7 @@ public class NoobChainApp {
                 return false;
             }
             // check if hash is less than target
-            if (!currentBlock.getHash().substring(0, difficulty).equals(hashTarget)) {
+            if (!currentBlock.getHash().substring(0, Constants.DIFFICULTY).equals(hashTarget)) {
                 System.out.println("This block hasn't been mined");
                 return false;
             }
