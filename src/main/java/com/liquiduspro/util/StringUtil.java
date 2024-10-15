@@ -1,13 +1,16 @@
-package com.liquiduspro;
+package com.liquiduspro.util;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Logger;
+
 
 public final class StringUtil {
-    private static final String HEX_ARRAY = "0123456789ABCDEF";
-    private static final Logger logger = Logger.getLogger(StringUtil.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(StringUtil.class);
 
     public static String applySha256(final String input) {
         try {
@@ -21,7 +24,7 @@ public final class StringUtil {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            logger.warning(e.toString());
+            logger.warn("Error while hashing string: {}", e.toString());
             throw new RuntimeException(e);
         }
     }
