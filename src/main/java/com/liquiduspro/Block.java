@@ -3,19 +3,20 @@ package com.liquiduspro;
 import com.liquiduspro.util.StringUtil;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Block {
     private final String previousHash;
     private final long timeStamp;
     private final String data;
     private String hash;
-    private int nonce;
+    private final AtomicInteger nonce;
 
     public Block(String data, String previousHash) {
         this.data = data;
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
-        this.nonce = 0;
+        this.nonce = new AtomicInteger(0);
         this.hash = calculateHash();
     }
 
@@ -54,7 +55,7 @@ public final class Block {
         // create a string with difficulty * "0"
         final String target = new String(new char[difficulty]).replace('\0', '0');
         while (!hash.substring(0, difficulty).equals(target)) {
-            nonce++;
+            nonce.getAndIncrement();
             hash = calculateHash();
         }
         System.out.println("Block Mined!!! : " + hash);
