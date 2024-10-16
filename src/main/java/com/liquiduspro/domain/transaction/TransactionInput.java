@@ -6,7 +6,7 @@ package com.liquiduspro.domain.transaction;
  * The transactionOutputId will be used to find the relevant TransactionOutput, allowing miners to check your ownership.
  */
 public class TransactionInput {
-    private String transactionOutputId; // the id of the output that's being spent
+    private final String transactionOutputId; // the id of the output that's being spent
     private TransactionOutput UTXO; // contains the unspent transaction output
 
     public TransactionInput(String transactionOutputId) {

@@ -75,7 +75,7 @@ public class Transaction implements Serializable {
         this.signature = StringUtil.applyECDSASignature(privateKey, data);
     }
 
-    private boolean verifySignature() {
+    public boolean verifySignature() {
         final String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + value;
         return StringUtil.verifyECDSASignature(sender, data, signature);
     }

@@ -77,15 +77,15 @@ public final class Wallet {
             final TransactionOutput UTXO = item.getValue();
             total += UTXO.getValue();
             final TransactionInput input = new TransactionInput(UTXO.getId());
-//            input.setUTXO(UTXO);
+            input.setUTXO(UTXO);    // set UTXO reference
             inputs.add(input);
             if (total > value) break;
         }
 
         Transaction newTransaction = new Transaction(this.publicKey, _recipient, value, inputs);
         newTransaction.generateSignature(this.privateKey);
+        // remove old transactions
         for (TransactionInput input : inputs) {
-//            this.UTXOs.remove(input.getUTXO().getId());
             this.UTXOs.remove(input.getTransactionOutputId());
         }
         return newTransaction;
