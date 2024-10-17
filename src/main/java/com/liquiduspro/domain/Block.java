@@ -1,6 +1,5 @@
 package com.liquiduspro.domain;
 
-import com.liquiduspro.NoobChain;
 import com.liquiduspro.domain.transaction.Transaction;
 import com.liquiduspro.domain.transaction.TransactionInput;
 import com.liquiduspro.util.ErrorMessage;
@@ -69,7 +68,7 @@ public final class Block {
             nonce.getAndIncrement();
             hash = calculateHash();
         }
-        System.out.println("Block Mined!!! : " + hash);
+        logger.info("Block Mined. Hash: {}", hash);
     }
 
     public boolean addTransaction(final Transaction transaction) {
@@ -92,7 +91,7 @@ public final class Block {
         }
         if (!transaction.getInputs().isEmpty()) {
             for (TransactionInput input : transaction.getInputs()) {
-                NoobChain.UTXOs.remove(input.getUTXO().getId());
+                UTXOSet.getInstance().remove(input.getUTXO().getId());
             }
         }
         transactions.add(transaction);
