@@ -1,6 +1,7 @@
 ## NoobChain
 
-simple blockchain implementation in Java
+Simple blockchain implementation in Java according to the tutorials from <a href="https://medium.com/javarevisited/java-concurrency-2-how-to-create-threads-ee2648184eb0">Dylan Smith</a>
+with some improvement on parallelization.
 ***
 
 ### Configuration
