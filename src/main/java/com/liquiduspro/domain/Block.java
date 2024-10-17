@@ -2,6 +2,8 @@ package com.liquiduspro.domain;
 
 import com.liquiduspro.domain.transaction.Transaction;
 import com.liquiduspro.domain.transaction.TransactionInput;
+import com.liquiduspro.singleton.UTXOSet;
+import com.liquiduspro.util.Constants;
 import com.liquiduspro.util.ErrorMessage;
 import com.liquiduspro.util.StringUtil;
 import com.liquiduspro.util.TransactionException;
@@ -18,15 +20,24 @@ public final class Block {
     private static final Logger logger = LoggerFactory.getLogger(Block.class);
     private final String previousHash;
     private final long timeStamp;
-    private final AtomicInteger nonce;
     private final List<Transaction> transactions = new ArrayList<>(); // <--- CHANGE LATER>
+    private AtomicInteger nonce;
     private String merkleRoot;
     private String hash;
+
     public Block(final String previousHash) {
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
         this.nonce = new AtomicInteger(0);
         this.hash = calculateHash();
+    }
+
+    public AtomicInteger getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(AtomicInteger nonce) {
+        this.nonce = nonce;
     }
 
     public List<Transaction> getTransactions() {
@@ -46,8 +57,10 @@ public final class Block {
     }
 
     // validate the block's hash
-    public boolean isValid() {
-        return hash.equals(calculateHash());
+    public boolean isValid(Block previousBlock) {
+        return this.getPreviousHash().equals(previousBlock.getHash())
+                && this.getHash().equals(calculateHash())
+                && this.getHash().substring(0, Constants.DIFFICULTY).equals("0".repeat(Constants.DIFFICULTY));
     }
 
     public String calculateHash() {
