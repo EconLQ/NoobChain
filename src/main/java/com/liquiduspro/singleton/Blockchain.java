@@ -1,6 +1,6 @@
-package com.liquiduspro.domain;
+package com.liquiduspro.singleton;
 
-import com.liquiduspro.util.Constants;
+import com.liquiduspro.domain.Block;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.IntStream;
 
 /**
  * Abstraction of the (in-memory) blockchain for the {@link com.liquiduspro.NoobChain} and {@link com.liquiduspro.ParallelNoobChain}
@@ -28,35 +29,13 @@ public class Blockchain {
     }
 
     public boolean validateChain() {
-        rwLock.readLock().lock();
-        try {
-            for (int i = 1; i < chain.size(); i++) {
-                final Block currentBlock = chain.get(i);
-                final String blockNumber = "Block #" + i;
-                // check if hash is correct
-                if (!currentBlock.isValid()) {
-                    logger.warn("{} has an invalid hash", blockNumber);
-                    return false;
-                }
-
-                // check if previous hash is equal for non-genesis blocks
-                final Block previousBlock = chain.get(i - 1);
-                if (!currentBlock.getPreviousHash().equals(previousBlock.getHash())) {
-                    logger.warn("{} has an invalid previous hash: {} != {}", blockNumber, currentBlock.getPreviousHash(), previousBlock.getHash());
-                    return false;
-                }
-
-                // check if hash is less than target
-                final String hashTarget = new String(new char[Constants.DIFFICULTY]).replace('\0', '0');
-                if (!currentBlock.getHash().substring(0, Constants.DIFFICULTY).equals(hashTarget)) {
-                    logger.warn("{} hasn't been mined properly", blockNumber);
-                    return false;
-                }
-            }
-            return true;
-        } finally {
-            rwLock.readLock().unlock();
-        }
+        return IntStream.range(1, chain.size())
+                .parallel()
+                .allMatch(i -> {
+                    Block current = chain.get(i);
+                    Block previous = chain.get(i - 1);
+                    return current != null && previous != null && current.isValid(previous);
+                });
     }
 
     public List<Block> getChain() {
