@@ -2,7 +2,7 @@ package com.liquiduspro;
 
 import com.google.gson.GsonBuilder;
 import com.liquiduspro.domain.Block;
-import com.liquiduspro.domain.Blockchain;
+import com.liquiduspro.singleton.Blockchain;
 import com.liquiduspro.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,20 +60,7 @@ public class ParallelNoobChain {
         }
 
         for (int i = 1; i < numOfBlocks; i++) {
-            final int index = i;
-            futureList.add(executor.submit(() -> {
-                String data = "Yo! Im a block #" + index;
-                Block block;
-                while (true) {
-                    String latestHash = BLOCKCHAIN.getLatestBlockHash();
-                    block = new Block(latestHash);
-                    block.mineBlock(Constants.DIFFICULTY);
-                    // check if block is valid
-                    if (BLOCKCHAIN.addBlock(block)) break;
-                    logger.info("Block #{} was not added to the blockchain. Retrying...", index);
-                }
-                return block;
-            }));
+            futureList.add(executor.submit(ParallelNoobChain::mineBlock));
         }
         for (Future<Block> future : futureList) {
             try {
@@ -85,6 +72,17 @@ public class ParallelNoobChain {
             }
         }
         executor.shutdown();
+    }
+
+    private static Block mineBlock() {
+        Block block;
+        do {
+            String latestHash = BLOCKCHAIN.getLatestBlockHash();
+            block = new Block(latestHash);
+            block.mineBlock(Constants.DIFFICULTY);
+            logger.info("Block {} was not added to the blockchain. Retrying...", block.getHash());
+        } while (!BLOCKCHAIN.addBlock(block));
+        return block;
     }
 
     private static void runParallelMining() {
