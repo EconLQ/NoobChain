@@ -1,6 +1,6 @@
 package com.liquiduspro.domain.transaction;
 
-import com.liquiduspro.domain.UTXOSet;
+import com.liquiduspro.singleton.UTXOSet;
 import com.liquiduspro.util.ErrorMessage;
 import com.liquiduspro.util.StringUtil;
 import com.liquiduspro.util.TransactionException;

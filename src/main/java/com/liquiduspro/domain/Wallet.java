@@ -3,6 +3,7 @@ package com.liquiduspro.domain;
 import com.liquiduspro.domain.transaction.Transaction;
 import com.liquiduspro.domain.transaction.TransactionInput;
 import com.liquiduspro.domain.transaction.TransactionOutput;
+import com.liquiduspro.singleton.UTXOSet;
 import com.liquiduspro.util.ErrorMessage;
 import com.liquiduspro.util.TransactionException;
 import org.slf4j.Logger;
