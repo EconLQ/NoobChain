@@ -1,6 +1,5 @@
 package com.liquiduspro.domain;
 
-import com.liquiduspro.NoobChain;
 import com.liquiduspro.domain.transaction.Transaction;
 import com.liquiduspro.domain.transaction.TransactionInput;
 import com.liquiduspro.domain.transaction.TransactionOutput;
@@ -21,7 +20,7 @@ import java.util.Map;
  */
 public final class Wallet {
     private static final Logger logger = LoggerFactory.getLogger(Wallet.class);
-    private Map<String, TransactionOutput> UTXOs = new HashMap<>(); //list of all unspent transactions.>
+    private final Map<String, TransactionOutput> UTXOs = new HashMap<>(); //list of all unspent transactions.>
     private PrivateKey privateKey;
     private PublicKey publicKey;
 
@@ -56,7 +55,7 @@ public final class Wallet {
     // returns a balance and stores the UTXO's owned by THIS wallet in this.UTXOs
     public float getBalance() {
         float total = 0;
-        for (Map.Entry<String, TransactionOutput> item : NoobChain.UTXOs.entrySet()) {
+        for (Map.Entry<String, TransactionOutput> item : UTXOSet.getInstance().getUTXOs().entrySet()) {
             final TransactionOutput UTXO = item.getValue();
             //if output belongs to me add it to the list of unspent transactions
             if (UTXO.isMine(this.publicKey)) {
