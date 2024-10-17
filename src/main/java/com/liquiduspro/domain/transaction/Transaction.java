@@ -1,6 +1,6 @@
 package com.liquiduspro.domain.transaction;
 
-import com.liquiduspro.NoobChain;
+import com.liquiduspro.domain.UTXOSet;
 import com.liquiduspro.util.ErrorMessage;
 import com.liquiduspro.util.StringUtil;
 import com.liquiduspro.util.TransactionException;
@@ -85,8 +85,10 @@ public class Transaction implements Serializable {
             throw new TransactionException(ErrorMessage.SIGNATURE_ERROR);
         }
         // gather unspent outputs
+        UTXOSet utxoSet = UTXOSet.getInstance();
         for (TransactionInput transactionInput : this.inputs) {
-            transactionInput.setUTXO(NoobChain.UTXOs.get(transactionInput.getTransactionOutputId()));
+//            transactionInput.setUTXO(NoobChain.UTXOs.get(transactionInput.getTransactionOutputId()));
+            transactionInput.setUTXO(utxoSet.get(transactionInput.getTransactionOutputId()));
         }
 
         // check if transaction is valid
@@ -103,12 +105,14 @@ public class Transaction implements Serializable {
 
         // add outputs to UTXOs
         for (TransactionOutput transactionOutput : outputs) {
-            NoobChain.UTXOs.put(transactionOutput.getId(), transactionOutput);
+            UTXOSet.getInstance().add(transactionOutput.getId(), transactionOutput);
+            utxoSet.add(transactionOutput.getId(), transactionOutput);
         }
         // remove transaction inputs from UTXO lists
         for (TransactionInput transactionInput : inputs) {
             if (transactionInput.getUTXO() != null) {
-                NoobChain.UTXOs.remove(transactionInput.getUTXO().getId());
+//                NoobChain.UTXOs.remove(transactionInput.getUTXO().getId());
+                utxoSet.remove(transactionInput.getUTXO().getId());
             }
         }
         return true;

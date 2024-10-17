@@ -1,6 +1,7 @@
 package com.liquiduspro;
 
 import com.liquiduspro.domain.Block;
+import com.liquiduspro.domain.UTXOSet;
 import com.liquiduspro.domain.Wallet;
 import com.liquiduspro.domain.transaction.Transaction;
 import com.liquiduspro.domain.transaction.TransactionInput;
@@ -21,7 +22,7 @@ import java.util.random.RandomGenerator;
 public class NoobChain {
     private static final Logger logger = LoggerFactory.getLogger(NoobChain.class);
     private final static List<Block> blockchain = new ArrayList<>(); // <--- This is our global list of blocks, like a global variable>
-    public static Map<String, TransactionOutput> UTXOs = new HashMap<>(); // <--- This is our global map of UTXOs>
+    public static UTXOSet UTXOs = UTXOSet.getInstance(); // <--- This is our global map of UTXOs>
     public static Wallet walletA;
     public static Wallet walletB;
     private static Transaction genesisTransaction;
@@ -124,14 +125,14 @@ public class NoobChain {
         genesisTransaction.getOutputs().add(new TransactionOutput(genesisTransaction.getRecipient(), genesisTransaction.getValue(), genesisTransaction.getTransactionId()));
         // manually add the output of the genesis transaction to the UTXO list
         TransactionOutput genesisTransactionOutput = genesisTransaction.getOutputs().get(0);
-        UTXOs.put(genesisTransactionOutput.getId(), genesisTransactionOutput);
+        UTXOs.add(genesisTransactionOutput.getId(), genesisTransactionOutput);
         return genesisTransaction;
     }
 
     private static Boolean isChainValid() {
         Block currentBlock, previousBlock;
         final String hashTarget = new String(new char[Constants.DIFFICULTY]).replace('\0', '0');
-        final Map<String, TransactionOutput> tempUTXOs = new HashMap<>(UTXOs);
+        final Map<String, TransactionOutput> tempUTXOs = new HashMap<>(UTXOs.getUTXOs());
 
         for (int i = 1; i < blockchain.size(); i++) {
             currentBlock = blockchain.get(i);
