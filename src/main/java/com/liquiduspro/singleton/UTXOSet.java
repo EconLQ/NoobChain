@@ -1,4 +1,4 @@
-package com.liquiduspro.domain;
+package com.liquiduspro.singleton;
 
 import com.liquiduspro.domain.transaction.TransactionOutput;
 import com.liquiduspro.util.ErrorMessage;
