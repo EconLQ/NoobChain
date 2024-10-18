@@ -6,6 +6,14 @@ Kass</a>
 with some improvement on parallelization.
 ***
 
+### Functionality
+
+* Allows users to create wallets with ‘new Wallet();’
+* Provides wallets with public and private keys using Elliptic-Curve cryptography.
+* Secures the transfer of funds, by using a digital signature algorithm to prove ownership.
+* Allow users to make transactions on blockchain with
+  `Block.addTransaction(walletA.sendFunds( walletB.publicKey, ${AMOUNT}));`
+
 ### Configuration
 
 configure java with sdkman
