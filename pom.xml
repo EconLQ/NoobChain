@@ -6,7 +6,7 @@
 
     <groupId>com.liquiduspro</groupId>
     <artifactId>noobchain</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -40,6 +40,12 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15to18</artifactId>
             <version>1.78.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jctools/jctools-core -->
+        <dependency>
+            <groupId>org.jctools</groupId>
+            <artifactId>jctools-core</artifactId>
+            <version>4.0.1</version>
         </dependency>
 
     </dependencies>

@@ -29,7 +29,8 @@ $ ./package-app.sh
 
 ### Usage
 How to run the application:
-[![demo](https://asciinema.org/a/xyxzQ7zyJBsNryL4L7m7qkHHh.svg)](https://asciinema.org/a/xyxzQ7zyJBsNryL4L7m7qkHHh)
+
+[![demo](https://asciinema.org/a/8fD1SGD8jHbcFYt96YtlOhq9W.svg)](https://asciinema.org/a/8fD1SGD8jHbcFYt96YtlOhq9W)
 On terminal snapshot it simulates the basic use of the application, where two
 wallets are created and funds are sent from one to the other.
 
