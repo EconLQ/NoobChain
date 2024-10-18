@@ -8,7 +8,7 @@ import java.util.Objects;
 public class TransactionOutput {
     private final float value; // the amount of coins they own
     private final String parentTransactionId; // the transaction that created these coins
-    private final PublicKey recipient; // new owner of these coins
+    private transient final PublicKey recipient; // new owner of these coins
     private String id;
 
     public TransactionOutput(PublicKey recipient, float value, String parentTransactionId) {

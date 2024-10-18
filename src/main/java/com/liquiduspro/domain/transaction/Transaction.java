@@ -22,13 +22,14 @@ public class Transaction implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private static int sequence = 0; // count of how many transactions have been processed
-    private final PublicKey sender; // sender's address public key
-    private final PublicKey recipient; // recipient's address public key
+    private transient final PublicKey sender; // sender's address public key
+    private transient final PublicKey recipient; // recipient's address public key
     private final float value; // amount to be sent
-    private String transactionId; // hash of the transaction
-    private byte[] signature; // digital signature of the transaction
     private final List<TransactionInput> inputs;
     private final List<TransactionOutput> outputs = new ArrayList<>();
+    private String transactionId; // hash of the transaction
+    private transient byte[] signature; // digital signature of the transaction
+
     public Transaction(PublicKey from, PublicKey to, float value, List<TransactionInput> inputs) {
         this.sender = from;
         this.recipient = to;
@@ -87,7 +88,6 @@ public class Transaction implements Serializable {
         // gather unspent outputs
         UTXOSet utxoSet = UTXOSet.getInstance();
         for (TransactionInput transactionInput : this.inputs) {
-//            transactionInput.setUTXO(NoobChain.UTXOs.get(transactionInput.getTransactionOutputId()));
             transactionInput.setUTXO(utxoSet.get(transactionInput.getTransactionOutputId()));
         }
 
@@ -105,13 +105,12 @@ public class Transaction implements Serializable {
 
         // add outputs to UTXOs
         for (TransactionOutput transactionOutput : outputs) {
-            UTXOSet.getInstance().add(transactionOutput.getId(), transactionOutput);
+//            UTXOSet.getInstance().add(transactionOutput.getId(), transactionOutput);
             utxoSet.add(transactionOutput.getId(), transactionOutput);
         }
         // remove transaction inputs from UTXO lists
         for (TransactionInput transactionInput : inputs) {
             if (transactionInput.getUTXO() != null) {
-//                NoobChain.UTXOs.remove(transactionInput.getUTXO().getId());
                 utxoSet.remove(transactionInput.getUTXO().getId());
             }
         }
