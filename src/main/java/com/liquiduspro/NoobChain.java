@@ -1,11 +1,13 @@
 package com.liquiduspro;
 
+import com.google.gson.GsonBuilder;
 import com.liquiduspro.domain.Block;
-import com.liquiduspro.domain.UTXOSet;
 import com.liquiduspro.domain.Wallet;
 import com.liquiduspro.domain.transaction.Transaction;
 import com.liquiduspro.domain.transaction.TransactionInput;
 import com.liquiduspro.domain.transaction.TransactionOutput;
+import com.liquiduspro.singleton.Blockchain;
+import com.liquiduspro.singleton.UTXOSet;
 import com.liquiduspro.util.Constants;
 import com.liquiduspro.util.ErrorMessage;
 import com.liquiduspro.util.TransactionException;
@@ -13,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.Security;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,48 +22,29 @@ import java.util.random.RandomGenerator;
 
 public class NoobChain {
     private static final Logger logger = LoggerFactory.getLogger(NoobChain.class);
-    private final static List<Block> blockchain = new ArrayList<>(); // <--- This is our global list of blocks, like a global variable>
-    public static UTXOSet UTXOs = UTXOSet.getInstance(); // <--- This is our global map of UTXOs>
+    private final static Blockchain blockchain = Blockchain.getInstance();
+    public static UTXOSet UTXOs = UTXOSet.getInstance();
     public static Wallet walletA;
     public static Wallet walletB;
-    private static Transaction genesisTransaction;
-    private static int blockCounter = 0;
 
-    private static void addBlocksToChain() {
-        // add genesis block
-        if (blockchain.isEmpty()) {
-            System.out.println("Creating and Mining Genesis block... ");
-            final Block genesisBlock = new Block("0");
-//            genesisBlock.mineBlock(Constants.DIFFICULTY);
-            genesisBlock.addTransaction(genesisTransaction);
-            blockchain.add(genesisBlock);
-            blockCounter++;
-        }
-
-        // add rest of the blocks
-        for (int i = 1; i < Constants.NUM_OF_BLOCKS; i++) {
-            final String previousHash = blockchain.get(blockchain.size() - 1).getHash();
-            final Block newBlock = new Block(previousHash);
-            final float randomAmount = RandomGenerator.getDefault().nextFloat(100f);
-            // send transactions
-            newBlock.addTransaction(walletA.sendFunds(walletB.getPublicKey(), randomAmount));
-            System.out.println("Wallet A balance: " + walletA.getBalance());
-            if (i % 2 == 0) {
-                newBlock.addTransaction(walletB.sendFunds(walletA.getPublicKey(), randomAmount));
-                System.out.println("Wallet B balance: " + walletB.getBalance());
-            }
-            blockchain.add(newBlock); // <--- add the new block to our blockchain
-            System.out.println("Trying to Mine block: #" + blockCounter);
-//            blockchain.get(blockCounter++).mineBlock(Constants.DIFFICULTY);
-        }
+    public static void run() {
+        simulateTransactions(Constants.NUM_OF_TRANSACTIONS);
+        System.out.println("\n==================Validate NoobChain==================");
+        System.out.println("Is chain valid: " + isChainValid());
+        System.out.println("\n==================NoobChain==================");
+        String blockchainJSON = new GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+                .toJson(blockchain.getChain());
+        System.out.println(blockchainJSON);
     }
 
-    public static void testNoobChain() {
+    private static void simulateTransactions(int numOfTransactions) {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         // Create the new wallets
         walletA = new Wallet();
         walletB = new Wallet();
-        Wallet binance = new Wallet();
+        final Wallet binance = new Wallet();
 
         // create genesis transaction, which sends 100 NoobCoin to walletA
         Transaction genesisTransaction = createGenesisTransaction(binance);
@@ -73,53 +55,44 @@ public class NoobChain {
         genesisBlock.addTransaction(genesisTransaction);
         addBlock(genesisBlock);
 
-        Block block1 = new Block(genesisBlock.getHash());
-        logger.info("Wallet A's balance is: {}", walletA.getBalance());
-        logger.info("Wallet A is Attempting to send funds (40) to WalletB...");
-        try {
-            block1.addTransaction(walletA.sendFunds(walletB.getPublicKey(), 40f));
-        } catch (TransactionException e) {
-            logger.warn(e.getMessage());
+        RandomGenerator randomGenerator = RandomGenerator.getDefault();
+        // generate transactions and add them to the blockchain
+        for (int i = 0; i < numOfTransactions; i++) {
+            final String previousHash = blockchain.get(blockchain.size() - 1).getHash();
+            final Block newBlock = new Block(previousHash);
+            final float randomAmount = randomGenerator.nextFloat(100f);
+            // send transactions randomly
+            if (i % 2 == 0) {
+                try {
+                    newBlock.addTransaction(walletA.sendFunds(walletB.getPublicKey(), randomAmount));
+                    logger.info("Wallet A attempting to send {} NoobCoins to Wallet B", randomAmount);
+                } catch (TransactionException e) {
+                    logger.warn(e.getMessage());
+                }
+            } else {
+                try {
+                    newBlock.addTransaction(walletB.sendFunds(walletA.getPublicKey(), randomAmount));
+                    logger.info("Wallet B attempting to send {} NoobCoins to Wallet A", randomAmount);
+                } catch (TransactionException e) {
+                    logger.warn(e.getMessage());
+                }
+            }
+            logger.info("Wallet A balance: {}", walletA.getBalance());
+            logger.info("Wallet B balance: {}", walletB.getBalance());
+            addBlock(newBlock);
         }
-        addBlock(block1);
-        logger.info("Wallet A's balance is: {}", walletA.getBalance());
-        logger.info("Wallet B's balance is: {}", walletB.getBalance());
-
-        Block block2 = new Block(block1.getHash());
-        logger.info("Wallet A Attempting to send more funds (1000) than it has...");
-        try {
-            block2.addTransaction(walletA.sendFunds(walletB.getPublicKey(), 1000f));
-        } catch (TransactionException e) {
-            logger.warn(e.getMessage());
-        }
-        addBlock(block2);
-        logger.info("Wallet A's balance is: {}", walletA.getBalance());
-        logger.info("Wallet B's balance is: {}", walletB.getBalance());
-
-        Block block3 = new Block(block2.getHash());
-        logger.info("Wallet B is Attempting to send funds (20) to Wallet A...");
-        try {
-            block3.addTransaction(walletB.sendFunds(walletA.getPublicKey(), 20));
-        } catch (TransactionException e) {
-            logger.warn(e.getMessage());
-        }
-        logger.info("Wallet A's balance is: {}", walletA.getBalance());
-        logger.info("Wallet B's balance is: {}", walletB.getBalance());
-
-        logger.info("Is chain valid: {}", isChainValid());
     }
 
     private static void addBlock(Block block) {
         block.mineBlock(Constants.DIFFICULTY);
-        blockchain.add(block);
-        blockCounter++;
+        blockchain.addBlock(block);
     }
 
     private static Transaction createGenesisTransaction(final Wallet from) {
         // create genesis transaction, which sends 100 NoobCoin to walletA
         TransactionInput genesisTransactionInput = new TransactionInput("0");
         genesisTransactionInput.setUTXO(new TransactionOutput(from.getPublicKey(), Constants.INITIAL_AMOUNT_OF_COINS, genesisTransactionInput.getTransactionOutputId()));
-        genesisTransaction = new Transaction(from.getPublicKey(), walletA.getPublicKey(), Constants.INITIAL_AMOUNT_OF_COINS, List.of(genesisTransactionInput));
+        Transaction genesisTransaction = new Transaction(from.getPublicKey(), walletA.getPublicKey(), Constants.INITIAL_AMOUNT_OF_COINS, List.of(genesisTransactionInput));
         genesisTransaction.generateSignature(from.getPrivateKey());
         genesisTransaction.setTransactionId(genesisTransactionInput.getTransactionOutputId()); // manually set the transaction id
         genesisTransaction.getOutputs().add(new TransactionOutput(genesisTransaction.getRecipient(), genesisTransaction.getValue(), genesisTransaction.getTransactionId()));
